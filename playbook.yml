@@ -1,0 +1,43 @@
+- name: test
+  hosts: all
+  become: yes
+
+  tasks:
+
+  - name: reinstall JDK 8
+    yum: 
+      name=java-1.8.0-openjdk.x86_64 state=removed
+
+  - name: wget JDK 11
+    get_url: 
+      url=https://download.java.net/openjdk/jdk11/ri/openjdk-11+28_linux-x64_bin.tar.gz 
+      dest=/home/user
+    become: no
+
+  - name: extract
+    ansible.builtin.unarchive:
+      src: /home/user/openjdk-11+28_linux-x64_bin.tar.gz
+      dest: /home/user/
+      remote_src: yes
+    become: no
+
+  - name: Change PATH global
+    shell:
+      grep -qxF "export PATH=$PATH:/home/user/jdk-11/bin" /etc/profile || echo "export PATH=$PATH:/home/user/jdk-11/bin" >> /etc/profile
+
+  - name: install nginx
+    yum:
+      name=nginx state=latest
+  
+  - name: Start nginx
+    service: name=nginx state=started enabled=yes
+
+  - name: IP in index.html
+    shell:
+      ip -br a show enp0s3 > /usr/share/nginx/html/index.html
+
+  - name: NGINX reload
+    service:
+      name=nginx
+      state=reloaded
+

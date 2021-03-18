@@ -1,0 +1,2 @@
+[linux_pc]
+linux ansible_host=192.168.88.210 ansible_user=user ansible_ssh_private_key_file=/home/user/.ssh/id_rsa
